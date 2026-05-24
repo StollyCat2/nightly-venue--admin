@@ -1,0 +1,115 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isVenueOwner(venueId) {
+      return request.auth != null && request.auth.uid == venueId;
+    }
+
+    // Admin user documents — bootstrapped on first admin login
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Venues — core venue data
+    match /venues/{venueId} {
+      // Any authenticated user can read active venues (Nightly consumer app)
+      allow read: if request.auth != null
+        && (resource.data.isActive == true || isVenueOwner(venueId) || isAdmin());
+
+      // Admin can write everything
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (isVenueOwner(venueId)
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['description', 'openingHours', 'phone', 'inviteStatus', 'lastLoginAt']));
+    }
+
+    // Queue entries
+    match /queue/{entryId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == resource.data.venueId;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasAll(['venueId', 'name', 'partySize', 'status', 'addedAt'])
+        && request.resource.data.status == 'waiting';
+
+      allow read, delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+    }
+
+    // Evening messages — keyed by venueId
+    match /eveningMessages/{venueId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && (request.auth.uid == venueId || isAdmin());
+    }
+
+    // Events
+    match /events/{eventId} {
+      allow read: if request.auth != null
+        && (resource.data.published == true
+            || request.auth.uid == resource.data.venueId
+            || isAdmin());
+
+      allow create: if request.auth != null
+        && (request.auth.uid == request.resource.data.venueId || isAdmin());
+
+      allow update, delete: if request.auth != null
+        && (request.auth.uid == resource.data.venueId || isAdmin());
+    }
+
+    // Venue status (queue status)
+    match /venueStatus/{venueId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && (request.auth.uid == venueId || isAdmin());
+    }
+
+    // Venue stats (views/clicks counters)
+    match /venueStats/{venueId} {
+      allow read: if request.auth != null
+        && (request.auth.uid == venueId || isAdmin());
+      allow write: if true; // incremented by cloud functions / user app
+    }
+
+    // Queue status log
+    match /queueStatusLog/{logId} {
+      allow read: if request.auth != null
+        && (request.auth.uid == resource.data.venueId || isAdmin());
+      allow create: if request.auth != null;
+    }
+
+    // Venue settings (guard mode PIN etc.)
+    match /venueSettings/{venueId} {
+      allow read, write: if request.auth != null
+        && (request.auth.uid == venueId || isAdmin());
+    }
+
+    // User location pings (Nightly consumer app — pulse zones)
+    match /userPings/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // City going-out counters (daily, reset by date field)
+    match /cityCounters/{cityId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Concerts — public read, admin write
+    match /concerts/{concertId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+  }
+}
