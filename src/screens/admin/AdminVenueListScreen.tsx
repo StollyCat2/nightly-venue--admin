@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Switch,
+  ScrollView,
 } from 'react-native';
 import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
@@ -31,9 +32,12 @@ const STATUS_LABELS: Record<string, string> = {
   fullt: 'Fullt',
 };
 
+const CITIES = ['Alle', 'Oslo', 'Bergen', 'Trondheim', 'Stavanger', 'Kristiansand'];
+
 export default function AdminVenueListScreen() {
   const [venues, setVenues] = useState<VenueDoc[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCity, setSelectedCity] = useState('Alle');
   const navigation = useNavigation<Nav>();
 
   useEffect(() => {
@@ -44,6 +48,10 @@ export default function AdminVenueListScreen() {
       setLoading(false);
     });
   }, []);
+
+  const filtered = selectedCity === 'Alle'
+    ? venues
+    : venues.filter((v) => v.address?.toLowerCase().includes(selectedCity.toLowerCase()));
 
   const toggleActive = (venueId: string, current: boolean) => {
     updateDoc(doc(db, 'venues', venueId), { isActive: !current });
@@ -60,19 +68,42 @@ export default function AdminVenueListScreen() {
   return (
     <FlatList
       style={styles.list}
-      data={venues}
+      data={filtered}
       keyExtractor={(v) => v.id}
       contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}
       ListHeaderComponent={
-        <View style={styles.headerRow}>
-          <Text style={styles.header}>Steder</Text>
-          <TouchableOpacity
-            style={styles.createBtn}
-            onPress={() => navigation.navigate('AdminCreateVenue')}
+        <>
+          <View style={styles.headerRow}>
+            <Text style={styles.header}>Steder</Text>
+            <TouchableOpacity
+              style={styles.createBtn}
+              onPress={() => navigation.navigate('AdminCreateVenue')}
+            >
+              <Text style={styles.createBtnText}>+ Nytt sted</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterRow}
           >
-            <Text style={styles.createBtnText}>+ Nytt sted</Text>
-          </TouchableOpacity>
-        </View>
+            {CITIES.map((city) => (
+              <TouchableOpacity
+                key={city}
+                style={[styles.chip, selectedCity === city && styles.chipActive]}
+                onPress={() => setSelectedCity(city)}
+              >
+                <Text style={[styles.chipText, selectedCity === city && styles.chipTextActive]}>
+                  {city}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <Text style={styles.countLabel}>
+            {filtered.length} {filtered.length === 1 ? 'sted' : 'steder'}
+            {selectedCity !== 'Alle' ? ` i ${selectedCity}` : ' totalt'}
+          </Text>
+        </>
       }
       renderItem={({ item }) => (
         <View style={styles.card}>
@@ -197,6 +228,16 @@ const styles = StyleSheet.create({
     borderColor: C.accent + '44',
   },
   editBtnText: { fontSize: 12, color: C.accent, fontWeight: '700' },
+  filterRow: { gap: 8, paddingBottom: 16 },
+  chip: {
+    paddingHorizontal: 14, paddingVertical: 7,
+    borderRadius: 20, borderWidth: 1,
+    borderColor: C.border, backgroundColor: C.card,
+  },
+  chipActive: { backgroundColor: C.accent + '22', borderColor: C.accent + '88' },
+  chipText: { fontSize: 13, fontWeight: '600', color: C.muted },
+  chipTextActive: { color: C.accent },
+  countLabel: { fontSize: 12, color: C.faint, marginBottom: 12 },
   empty: { paddingTop: 60, alignItems: 'center', gap: 8 },
   emptyText: { fontSize: 18, color: C.muted },
   emptyHint: { fontSize: 13, color: C.faint },
