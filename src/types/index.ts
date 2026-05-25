@@ -8,6 +8,8 @@ export type RootStackParamList = {
   AdminVenueList: undefined;
   AdminCreateVenue: undefined;
   AdminVenueDetail: { venueId: string };
+  AdminConcertList: undefined;
+  AdminConcertForm: { concertId?: string };
 };
 
 export interface DayHours {

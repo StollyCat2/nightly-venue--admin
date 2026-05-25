@@ -75,12 +75,20 @@ export default function AdminVenueListScreen() {
         <>
           <View style={styles.headerRow}>
             <Text style={styles.header}>Steder</Text>
-            <TouchableOpacity
-              style={styles.createBtn}
-              onPress={() => navigation.navigate('AdminCreateVenue')}
-            >
-              <Text style={styles.createBtnText}>+ Nytt sted</Text>
-            </TouchableOpacity>
+            <View style={styles.headerBtns}>
+              <TouchableOpacity
+                style={styles.concertBtn}
+                onPress={() => navigation.navigate('AdminConcertList')}
+              >
+                <Text style={styles.concertBtnText}>♪ Konserter</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.createBtn}
+                onPress={() => navigation.navigate('AdminCreateVenue')}
+              >
+                <Text style={styles.createBtnText}>+ Nytt sted</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           <ScrollView
             horizontal
@@ -177,13 +185,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   header: { fontSize: 28, fontWeight: '700', color: C.text },
+  headerBtns: { flexDirection: 'row', gap: 8 },
+  concertBtn: {
+    borderWidth: 1, borderColor: C.accent + '66',
+    borderRadius: RADIUS, paddingHorizontal: 14, paddingVertical: 10,
+    backgroundColor: C.accent + '11',
+  },
+  concertBtnText: { color: C.accent, fontWeight: '700', fontSize: 14 },
   createBtn: {
     backgroundColor: C.accent,
     borderRadius: RADIUS,
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
-  createBtnText: { color: C.text, fontWeight: '700', fontSize: 14 },
+  createBtnText: { color: '#000', fontWeight: '700', fontSize: 14 },
   card: {
     backgroundColor: C.card,
     borderRadius: RADIUS,

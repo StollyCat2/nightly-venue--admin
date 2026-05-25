@@ -9,6 +9,8 @@ import { C } from '../theme';
 import AdminVenueListScreen from '../screens/admin/AdminVenueListScreen';
 import AdminCreateVenueScreen from '../screens/admin/AdminCreateVenueScreen';
 import AdminVenueDetailScreen from '../screens/admin/AdminVenueDetailScreen';
+import AdminConcertListScreen from '../screens/admin/AdminConcertListScreen';
+import AdminConcertFormScreen from '../screens/admin/AdminConcertFormScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -40,6 +42,18 @@ export default function AdminNavigator() {
         name="AdminVenueDetail"
         component={AdminVenueDetailScreen}
         options={{ title: 'Rediger sted' }}
+      />
+      <Stack.Screen
+        name="AdminConcertList"
+        component={AdminConcertListScreen}
+        options={{ title: 'Konserter' }}
+      />
+      <Stack.Screen
+        name="AdminConcertForm"
+        component={AdminConcertFormScreen}
+        options={({ route }) => ({
+          title: route.params?.concertId ? 'Rediger konsert' : 'Ny konsert',
+        })}
       />
     </Stack.Navigator>
   );
