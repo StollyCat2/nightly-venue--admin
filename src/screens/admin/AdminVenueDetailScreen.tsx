@@ -11,7 +11,7 @@ import {
   Image,
   Switch,
 } from 'react-native';
-import { doc, onSnapshot, updateDoc, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, arrayUnion, serverTimestamp, Timestamp, deleteDoc } from 'firebase/firestore';
 import { geocodeAddress } from '../../utils/geocode';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { sendPasswordResetEmail, getAuth } from 'firebase/auth';
@@ -59,6 +59,7 @@ export default function AdminVenueDetailScreen() {
   const [images, setImages] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [sendingInvite, setSendingInvite] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -162,6 +163,30 @@ export default function AdminVenueDetailScreen() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Slett sted',
+      `Er du sikker på at du vil slette "${venue?.name}"? Dette kan ikke angres.`,
+      [
+        { text: 'Avbryt', style: 'cancel' },
+        {
+          text: 'Slett',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await deleteDoc(doc(db, 'venues', venueId));
+              navigation.goBack();
+            } catch {
+              Alert.alert('Feil', 'Kunne ikke slette stedet. Prøv igjen.');
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
   const sendInvite = async () => {
@@ -318,6 +343,18 @@ export default function AdminVenueDetailScreen() {
           <Text style={styles.saveBtnText}>Lagre endringer</Text>
         )}
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.deleteBtn, deleting && styles.btnDisabled]}
+        onPress={handleDelete}
+        disabled={deleting}
+      >
+        {deleting ? (
+          <ActivityIndicator color={C.statusRed} />
+        ) : (
+          <Text style={styles.deleteBtnText}>Slett sted</Text>
+        )}
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -457,4 +494,14 @@ const styles = StyleSheet.create({
   },
   btnDisabled: { opacity: 0.6 },
   saveBtnText: { color: '#000', fontSize: 16, fontWeight: '700' },
+  deleteBtn: {
+    borderWidth: 1,
+    borderColor: C.statusRed + '66',
+    borderRadius: RADIUS,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  deleteBtnText: { color: C.statusRed, fontSize: 15, fontWeight: '600' },
 });
