@@ -194,7 +194,10 @@ export default function AdminVenueDetailScreen() {
     setSendingInvite(true);
     try {
       const secondaryAuth = getSecondaryAuth();
-      await sendPasswordResetEmail(secondaryAuth, venue.ownerEmail);
+      await sendPasswordResetEmail(secondaryAuth, venue.ownerEmail, {
+        url: process.env.EXPO_PUBLIC_APP_URL ?? 'https://nightly-venue-admin.vercel.app',
+        handleCodeInApp: false,
+      });
       await updateDoc(doc(db, 'venues', venueId), {
         invitesSentAt: arrayUnion(serverTimestamp()),
       });

@@ -117,7 +117,10 @@ export default function AdminCreateVenueScreen() {
       );
       const venueId = credential.user.uid;
 
-      await sendPasswordResetEmail(secondaryAuth, ownerEmail.trim());
+      await sendPasswordResetEmail(secondaryAuth, ownerEmail.trim(), {
+        url: process.env.EXPO_PUBLIC_APP_URL ?? 'https://nightly-venue-admin.vercel.app',
+        handleCodeInApp: false,
+      });
       await firebaseSignOut(secondaryAuth);
 
       const imageUrls = await uploadImages(venueId);
