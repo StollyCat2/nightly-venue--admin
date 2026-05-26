@@ -106,6 +106,9 @@ export default function AdminConcertListScreen() {
                 <View style={styles.cardMeta}>
                   <View style={[styles.genreDot, { backgroundColor: genreColor }]} />
                   <Text style={[styles.genre, { color: genreColor }]}>{item.genre}</Text>
+                  {(item as any).type === 'festival' && (
+                    <View style={styles.festivalBadge}><Text style={styles.festivalBadgeText}>⛺ Festival</Text></View>
+                  )}
                   {past && <View style={styles.pastBadge}><Text style={styles.pastBadgeText}>Avholdt</Text></View>}
                 </View>
                 <Text style={styles.artist}>{item.artist}</Text>
@@ -168,6 +171,12 @@ const styles = StyleSheet.create({
     borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2,
   },
   pastBadgeText: { fontSize: 10, color: C.muted, fontWeight: '600' },
+  festivalBadge: {
+    marginLeft: 4, backgroundColor: C.accent + '18',
+    borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2,
+    borderWidth: 1, borderColor: C.accent + '44',
+  },
+  festivalBadgeText: { fontSize: 10, color: C.accent, fontWeight: '700' },
   artist: { fontSize: 12, color: C.muted, fontWeight: '600' },
   title: { fontSize: 17, fontWeight: '700', color: C.text },
   meta: { fontSize: 13, color: C.muted },

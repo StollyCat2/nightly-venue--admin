@@ -46,13 +46,13 @@ export default function AdminNavigator() {
       <Stack.Screen
         name="AdminConcertList"
         component={AdminConcertListScreen}
-        options={{ title: 'Konserter' }}
+        options={{ title: 'Eventer' }}
       />
       <Stack.Screen
         name="AdminConcertForm"
         component={AdminConcertFormScreen}
         options={({ route }) => ({
-          title: route.params?.concertId ? 'Rediger konsert' : 'Ny konsert',
+          title: route.params?.concertId ? 'Rediger event' : 'Nytt event',
         })}
       />
     </Stack.Navigator>
