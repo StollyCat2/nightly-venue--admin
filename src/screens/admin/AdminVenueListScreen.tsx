@@ -77,6 +77,12 @@ export default function AdminVenueListScreen() {
             <Text style={styles.header}>Steder</Text>
             <View style={styles.headerBtns}>
               <TouchableOpacity
+                style={styles.analyticsBtn}
+                onPress={() => navigation.navigate('AdminAnalytics')}
+              >
+                <Text style={styles.analyticsBtnText}>Statistikk</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={styles.concertBtn}
                 onPress={() => navigation.navigate('AdminConcertList')}
               >
@@ -186,6 +192,12 @@ const styles = StyleSheet.create({
   },
   header: { fontSize: 28, fontWeight: '700', color: C.text },
   headerBtns: { flexDirection: 'row', gap: 8 },
+  analyticsBtn: {
+    borderWidth: 1, borderColor: C.border,
+    borderRadius: RADIUS, paddingHorizontal: 14, paddingVertical: 10,
+    backgroundColor: C.card,
+  },
+  analyticsBtnText: { color: C.muted, fontWeight: '700', fontSize: 14 },
   concertBtn: {
     borderWidth: 1, borderColor: C.accent + '66',
     borderRadius: RADIUS, paddingHorizontal: 14, paddingVertical: 10,

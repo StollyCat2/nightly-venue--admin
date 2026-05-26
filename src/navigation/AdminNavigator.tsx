@@ -11,6 +11,7 @@ import AdminCreateVenueScreen from '../screens/admin/AdminCreateVenueScreen';
 import AdminVenueDetailScreen from '../screens/admin/AdminVenueDetailScreen';
 import AdminConcertListScreen from '../screens/admin/AdminConcertListScreen';
 import AdminConcertFormScreen from '../screens/admin/AdminConcertFormScreen';
+import AdminAnalyticsScreen from '../screens/admin/AdminAnalyticsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -54,6 +55,11 @@ export default function AdminNavigator() {
         options={({ route }) => ({
           title: route.params?.concertId ? 'Rediger event' : 'Nytt event',
         })}
+      />
+      <Stack.Screen
+        name="AdminAnalytics"
+        component={AdminAnalyticsScreen}
+        options={{ title: 'Statistikk' }}
       />
     </Stack.Navigator>
   );
